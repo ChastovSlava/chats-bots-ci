@@ -1,5 +1,3 @@
-import json
-
 from bot.handlers.handler import Handler, HandlerStatus
 from bot.domain.messenger import Messenger
 from bot.domain.storage import Storage
@@ -61,7 +59,7 @@ class ApproveOrderHander(Handler):
             )
         elif callback_data == "order_revoke":
             storage.clear_user_state_and_order(telegram_id)
-            order_summary = f"""
+            order_summary = """
             **Your order was revoked!**
             **Send /start to new order.**"""
 
