@@ -10,7 +10,7 @@ from bot.long_polling import start_long_polling
 
 def main() -> None:
     try:
-        #storage: Storage = StorageSqlite()
+        # storage: Storage = StorageSqlite()
         storage: Storage = StoragePostgres()
         messenger: Messenger = MessengerTelegram()
 
