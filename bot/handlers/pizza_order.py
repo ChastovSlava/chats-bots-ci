@@ -39,9 +39,8 @@ class ApproveOrderHander(Handler):
             messenger.delete_message(
                 chat_id=update["callback_query"]["message"]["chat"]["id"],
                 message_id=update["callback_query"]["message"]["message_id"],
-            )
+            ),
         )
-        
 
         if callback_data == "order_approve":
             pizza_name = order_json.get("pizza_name", "Unknown")
@@ -63,7 +62,7 @@ class ApproveOrderHander(Handler):
                     parse_mode="Markdown",
                 ),
             )
-            
+
         elif callback_data == "order_revoke":
             await asyncio.gather(
                 storage.clear_user_state_and_order(telegram_id),
@@ -79,6 +78,5 @@ class ApproveOrderHander(Handler):
                     parse_mode="Markdown",
                 ),
             )
-            
 
         return HandlerStatus.STOP

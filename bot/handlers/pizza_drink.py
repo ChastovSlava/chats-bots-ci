@@ -51,7 +51,7 @@ class DrinkSelectionHander(Handler):
             storage.update_user_state(telegram_id, "WAIT_FOR_ORDER_APPROVE"),
             messenger.answer_callback_query(update["callback_query"]["id"]),
         )
-        
+
         pizza_name = order_json.get("pizza_name", "Unknown")
         pizza_size = order_json.get("pizza_size", "Unknown")
         drink = order_json.get("pizza_drink", "Unknown")
@@ -65,8 +65,8 @@ class DrinkSelectionHander(Handler):
 
         await asyncio.gather(
             messenger.delete_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
+                chat_id=update["callback_query"]["message"]["chat"]["id"],
+                message_id=update["callback_query"]["message"]["message_id"],
             ),
             messenger.send_message(
                 chat_id=update["callback_query"]["message"]["chat"]["id"],
@@ -79,12 +79,15 @@ class DrinkSelectionHander(Handler):
                                 {"text": "Approve", "callback_data": "order_approve"},
                             ],
                             [
-                                {"text": "Revoke order", "callback_data": "order_revoke"},
+                                {
+                                    "text": "Revoke order",
+                                    "callback_data": "order_revoke",
+                                },
                             ],
                         ],
                     },
                 ),
-            )
+            ),
         )
-        
+
         return HandlerStatus.STOP

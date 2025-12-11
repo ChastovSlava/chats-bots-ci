@@ -14,12 +14,12 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s.%(msecs)03d] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+
 
 class MessengerTelegram(Messenger):
     def __init__(self) -> None:
@@ -35,7 +35,7 @@ class MessengerTelegram(Messenger):
         if self._session is None or self._session.closed:
             self._session = aiohttp.ClientSession()
         return self._session
-    
+
     async def _make_request(self, method: str, **params) -> dict:
         url = f"{self._get_telegram_base_uri()}/{method}"
         start_time = time.time()

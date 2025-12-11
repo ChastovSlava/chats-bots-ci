@@ -50,7 +50,7 @@ class SizeSelectionHandler(Handler):
             storage.update_user_state(telegram_id, "WAIT_FOR_DRINK"),
             messenger.answer_callback_query(update["callback_query"]["id"]),
         )
-        
+
         await asyncio.gather(
             messenger.delete_message(
                 chat_id=update["callback_query"]["message"]["chat"]["id"],
@@ -63,7 +63,10 @@ class SizeSelectionHandler(Handler):
                     {
                         "inline_keyboard": [
                             [
-                                {"text": "Coca-Cola", "callback_data": "drink_coca_cola"},
+                                {
+                                    "text": "Coca-Cola",
+                                    "callback_data": "drink_coca_cola",
+                                },
                                 {"text": "Sprite", "callback_data": "drink_sprite"},
                             ],
                             [
@@ -77,12 +80,15 @@ class SizeSelectionHandler(Handler):
                                 },
                             ],
                             [
-                                {"text": "Without Drink", "callback_data": "drink_none"},
+                                {
+                                    "text": "Without Drink",
+                                    "callback_data": "drink_none",
+                                },
                             ],
                         ],
                     },
                 ),
             ),
         )
-        
+
         return HandlerStatus.STOP

@@ -40,7 +40,6 @@ class MessageStart(Handler):
                 text="Welcom to Pizza shop!",
                 reply_markup=json.dumps({"remove_keyboards": True}),
             ),
-
             messenger.send_message(
                 chat_id=update["message"]["chat"]["id"],
                 text="Please choose pizza name",
@@ -48,8 +47,14 @@ class MessageStart(Handler):
                     {
                         "inline_keyboard": [
                             [
-                                {"text": "Margherita", "callback_data": "pizza_margherita"},
-                                {"text": "Pepperoni", "callback_data": "pizza_pepperoni"},
+                                {
+                                    "text": "Margherita",
+                                    "callback_data": "pizza_margherita",
+                                },
+                                {
+                                    "text": "Pepperoni",
+                                    "callback_data": "pizza_pepperoni",
+                                },
                             ],
                             [
                                 {
@@ -63,11 +68,14 @@ class MessageStart(Handler):
                             ],
                             [
                                 {"text": "Diavola", "callback_data": "pizza_diavola"},
-                                {"text": "Prosciutto", "callback_data": "pizza_prosciutto"},
+                                {
+                                    "text": "Prosciutto",
+                                    "callback_data": "pizza_prosciutto",
+                                },
                             ],
                         ]
                     },
                 ),
-            )
+            ),
         )
         return HandlerStatus.STOP
