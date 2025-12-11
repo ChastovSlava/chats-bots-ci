@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from bot.handlers.handler import Handler, HandlerStatus
@@ -23,7 +24,7 @@ class DrinkSelectionHander(Handler):
         callback_data = update["callback_query"]["data"]
         return callback_data.startswith("drink_")
 
-    def handle(
+    async def handle(
         self,
         update: dict,
         state: str,
@@ -45,13 +46,12 @@ class DrinkSelectionHander(Handler):
         pizza_drink = drink_mapping.get(callback_data)
         order_json["pizza_drink"] = pizza_drink
 
-        storage.update_user_order_json(telegram_id, order_json)
-        storage.update_user_state(telegram_id, "WAIT_FOR_ORDER_APPROVE")
-        messenger.answer_callback_query(update["callback_query"]["id"])
-        messenger.delete_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
+        await asyncio.gather(
+            storage.update_user_order_json(telegram_id, order_json),
+            storage.update_user_state(telegram_id, "WAIT_FOR_ORDER_APPROVE"),
+            messenger.answer_callback_query(update["callback_query"]["id"]),
         )
+
         pizza_name = order_json.get("pizza_name", "Unknown")
         pizza_size = order_json.get("pizza_size", "Unknown")
         drink = order_json.get("pizza_drink", "Unknown")
@@ -63,21 +63,31 @@ class DrinkSelectionHander(Handler):
 
         Is everything correct?"""
 
-        messenger.send_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            text=order_summary,
-            parse_mode="Markdown",
-            reply_markup=json.dumps(
-                {
-                    "inline_keyboard": [
-                        [
-                            {"text": "Approve", "callback_data": "order_approve"},
+        await asyncio.gather(
+            messenger.delete_message(
+                chat_id=update["callback_query"]["message"]["chat"]["id"],
+                message_id=update["callback_query"]["message"]["message_id"],
+            ),
+            messenger.send_message(
+                chat_id=update["callback_query"]["message"]["chat"]["id"],
+                text=order_summary,
+                parse_mode="Markdown",
+                reply_markup=json.dumps(
+                    {
+                        "inline_keyboard": [
+                            [
+                                {"text": "Approve", "callback_data": "order_approve"},
+                            ],
+                            [
+                                {
+                                    "text": "Revoke order",
+                                    "callback_data": "order_revoke",
+                                },
+                            ],
                         ],
-                        [
-                            {"text": "Revoke order", "callback_data": "order_revoke"},
-                        ],
-                    ],
-                },
+                    },
+                ),
             ),
         )
+
         return HandlerStatus.STOP

@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 from bot.handlers.handler import Handler, HandlerStatus
@@ -5,7 +6,7 @@ from bot.domain.messenger import Messenger
 from bot.domain.storage import Storage
 
 
-class SizeSelectionHander(Handler):
+class SizeSelectionHandler(Handler):
     def can_handle(
         self,
         update: dict,
@@ -23,7 +24,7 @@ class SizeSelectionHander(Handler):
         callback_data = update["callback_query"]["data"]
         return callback_data.startswith("size_")
 
-    def handle(
+    async def handle(
         self,
         update: dict,
         state: str,
@@ -44,38 +45,50 @@ class SizeSelectionHander(Handler):
         pizza_size = size_mapping.get(callback_data)
         order_json["pizza_size"] = pizza_size
 
-        storage.update_user_order_json(telegram_id, order_json)
-        storage.update_user_state(telegram_id, "WAIT_FOR_DRINK")
-        messenger.answer_callback_query(update["callback_query"]["id"])
-        messenger.delete_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
+        await asyncio.gather(
+            storage.update_user_order_json(telegram_id, order_json),
+            storage.update_user_state(telegram_id, "WAIT_FOR_DRINK"),
+            messenger.answer_callback_query(update["callback_query"]["id"]),
         )
-        messenger.send_message(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            text="Please select drink",
-            reply_markup=json.dumps(
-                {
-                    "inline_keyboard": [
-                        [
-                            {"text": "Coca-Cola", "callback_data": "drink_coca_cola"},
-                            {"text": "Sprite", "callback_data": "drink_sprite"},
+
+        await asyncio.gather(
+            messenger.delete_message(
+                chat_id=update["callback_query"]["message"]["chat"]["id"],
+                message_id=update["callback_query"]["message"]["message_id"],
+            ),
+            messenger.send_message(
+                chat_id=update["callback_query"]["message"]["chat"]["id"],
+                text="Please select drink",
+                reply_markup=json.dumps(
+                    {
+                        "inline_keyboard": [
+                            [
+                                {
+                                    "text": "Coca-Cola",
+                                    "callback_data": "drink_coca_cola",
+                                },
+                                {"text": "Sprite", "callback_data": "drink_sprite"},
+                            ],
+                            [
+                                {
+                                    "text": "Orange Juice",
+                                    "callback_data": "drink_orange_juice",
+                                },
+                                {
+                                    "text": "Apple Juice",
+                                    "callback_data": "drink_apple_juice",
+                                },
+                            ],
+                            [
+                                {
+                                    "text": "Without Drink",
+                                    "callback_data": "drink_none",
+                                },
+                            ],
                         ],
-                        [
-                            {
-                                "text": "Orange Juice",
-                                "callback_data": "drink_orange_juice",
-                            },
-                            {
-                                "text": "Apple Juice",
-                                "callback_data": "drink_apple_juice",
-                            },
-                        ],
-                        [
-                            {"text": "Without Drink", "callback_data": "drink_none"},
-                        ],
-                    ],
-                },
+                    },
+                ),
             ),
         )
+
         return HandlerStatus.STOP
