@@ -1,8 +1,6 @@
 import logging
-import json
 import os
 import time
-import urllib.request
 import aiohttp
 
 from dotenv import load_dotenv
